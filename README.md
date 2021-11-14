@@ -1,0 +1,1 @@
+# Aplicación ejemplificando a "Mercado Libre", aplicando modelo MVC, EJS, métodos CRUD y demás
