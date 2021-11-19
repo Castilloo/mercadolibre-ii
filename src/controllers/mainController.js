@@ -1,11 +1,14 @@
 const { resolveObjectURL } = require('buffer');
 const fs = require('fs');
 const path = require('path');
+const modelProducts = require('../data/modelProducts');
 
-const productsFilePath = path.join(__dirname, '../data/productsDataBase.json');
-const products = JSON.parse(fs.readFileSync(productsFilePath, 'utf-8'));
+// const productsFilePath = path.join(__dirname, '../data/productsDataBase.json');
+// const modelProducts = JSON.parse(fs.readFileSync(productsFilePath, 'utf-8'));
 
 const toThousand = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+const products = modelProducts.getProducts();
 
 const controller = {
 	index: (req, res) => {

@@ -2,10 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const { render } = require('../app');
 
-const productsFilePath = path.join(__dirname, '../data/productsDataBase.json');
-const products = JSON.parse(fs.readFileSync(productsFilePath, 'utf-8'));
+const modelProducts = require('../data/modelProducts');
+
+// const productsFilePath = path.join(__dirname, '../data/productsDataBase.json');
+// const products = JSON.parse(fs.readFileSync(productsFilePath, 'utf-8'));
 
 const toThousand = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+const products = modelProducts.getProducts();
 
 //crear un ID
 let createId = () => {
@@ -25,11 +29,11 @@ let createId = () => {
 // }
 
 //Convertir lista de productos a JSON y sobreescribirlos
-const convertAndSave = (products) => {
-	const productsJSON = JSON.stringify(products, null, 4);
-		//Escribir nueva lista de productos en JSON
-	fs.writeFileSync(productsFilePath, productsJSON);
-}
+// const convertAndSave = (products) => {
+// 	const productsJSON = JSON.stringify(products, null, 4);
+// 		//Escribir nueva lista de productos en JSON
+// 	fs.writeFileSync(productsFilePath, productsJSON);
+// }
 
 //Controlador
 const controller = {
@@ -63,18 +67,10 @@ const controller = {
 			...req.body,
 			image
 		}
+	
+		modelProducts.createProduct(newProduct);
 
-		console.log(newProduct);
-		//Ingresar el ID de acuerdo el orden
-		if (newProduct.id - 1 == products.length) {
-			products.push(newProduct);
-		} else {
-			products.splice(newProduct.id - 1, 0, newProduct);
-		}
-
-		convertAndSave(products);
-
-		res.send('Creado');
+		res.redirect('/');
 	},
 
 	// Update - Form to edit
@@ -83,26 +79,27 @@ const controller = {
 		const productToEdit = products.find(prod => prod.id == id);
 		res.render('product-edit-form', {productToEdit});
 	},
+
 	// Update - Method to update
 	update: (req, res) => {
+		const {id} = req.params;
+		const oldProduct = products.find(product => product.id == id);
 		const productEdited = {
+			id: parseInt(id),
 			...req.body,
+			image: oldProduct.image
 		}
-		const indexProduct = products.findIndex(product => product.id == req.params.id);
-		products[indexProduct] = productEdited;
+		// console.log(productEdited)
+		modelProducts.updateProduct(productEdited);
 
-		convertAndSave(products);
-		// res.send('Modificado');
 		res.redirect('/');
 	},
 
 	// Delete - Delete one product from DB
 	destroy : (req, res) => {
 		const {id} = req.params;
-		const productDelete = products.filter(product => product.id != id);
-		console.log(productDelete);
-		// res.send('Eliminado')
-		convertAndSave(productDelete);
+		console.log(id);
+		modelProducts.deleteProduct(id);
 		res.redirect('/');
 	}
 };
